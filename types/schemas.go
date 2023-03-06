@@ -78,12 +78,24 @@ func (s *Schemas) RemoveSchema(schema Schema) *Schemas {
 func (s *Schemas) doRemoveSchema(schema Schema) *Schemas {
 	delete(s.schemasByPath[schema.Version.Path], schema.ID)
 
+	s.RemoveSchemaInSlice(&schema)
 	s.removeReferences(&schema)
 
 	if schema.Embed {
 		s.removeEmbed(&schema)
 	}
 
+	return s
+}
+
+func (s *Schemas) RemoveSchemaInSlice(schema *Schema) *Schemas {
+	var modified []*Schema
+	for _, obj := range s.schemas {
+		if schema.ID != obj.ID {
+			modified = append(modified, obj)
+		}
+	}
+	s.schemas = modified
 	return s
 }
 
